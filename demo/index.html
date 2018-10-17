@@ -251,6 +251,7 @@
         $(function () {
             $(".controls-container .layui-form-item")
                 .resizable({ grid: 20 });
+                $('.controls-container').sortable({cursor: 'move'}).disableSelection();
             $(".controls-container .input-item-inline .editor-adorn .btn-edit").on(function () { });
         });
     </script>
