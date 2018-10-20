@@ -198,25 +198,26 @@
                 <div class="form-group row">
                     <label class="col-sm-3 col-form-label" for="chb-required">必填</label>
                     <div class="col-sm-9">
-                        <input type="checkbox" class="form-check-input" id="chb-required">
+                        <input data-field="field-required" type="checkbox" class="form-check-input" id="chb-required">
                     </div>
                 </div>
                 <div class="form-group row">
                     <label for="input-title" class="col-sm-3 col-form-label">标题</label>
                     <div class="col-sm-9">
-                        <input type="text" class="form-control" id="input-title" placeholder="输入标题">
+                        <input type="text" data-field="label-text" class="form-control" id="input-title" placeholder="输入标题">
                     </div>
                 </div>
                 <div class="form-group row">
                     <label for="input-name" class="col-sm-3 col-form-label">名称</label>
                     <div class="col-sm-9">
-                        <input type="text" class="form-control" id="input-name" placeholder="输入名称" required>
+                        <input type="text" data-field="field-id field-name" class="form-control" id="input-name"
+                            placeholder="输入名称" required>
                     </div>
                 </div>
                 <div class="form-group row">
                     <label for="input-type" class="col-sm-3 col-form-label">格式</label>
                     <div class="col-sm-9">
-                        <select class="form-control">
+                        <select class="form-control" data-field="field-type">
                             <option value="text">文本框</option>
                             <option value="password">密码框</option>
                             <option value="email">邮箱</option>
@@ -227,7 +228,8 @@
                 <div class="form-group row">
                     <label for="input-placeholder" class="col-sm-3 col-form-label">提示</label>
                     <div class="col-sm-9">
-                        <input type="text" class="form-control" id="input-placeholder" placeholder="输入名称">
+                        <input type="text" data-field="field-attrs-placeholder" class="form-control" id="input-placeholder"
+                            placeholder="输入名称">
                     </div>
                 </div>
 
@@ -248,23 +250,24 @@
 
     <script>
         function control(configs) {
-            configs = configs || {};
+            this.configs = configs || {};
             this.type = configs.type || 'text';
             this.id = configs.id;
             this.name = configs.name;
-            var field = configs.field || { id: Date.now(), name: Date.now() };
-            this.fieldId = field.id;
-            this.fieldName = field.name;
-            this.fieldClass = field.class;
-            this.fieldAttrs = field.attrs;
+            this.field = configs.field || {
+                id: Date.now(),
+                name: Date.now()
+            };
+            
             this.class = configs.class;
             this.attrs = configs.attrs;
             this.isPreview = configs.isPreview;
             this.style = configs.style;
-            this.fieldStyle = configs.fieldStyle;
         }
 
-        control.prototype.getType = function () { return this.type; };
+        control.prototype.getType = function () {
+            return this.type;
+        };
         control.prototype.buildHtml = function () {
             $item = $('<div></div>');
             if (this.id) {
@@ -298,14 +301,16 @@
             $item.data('control', this.getType());
 
             if (this.isPreview) {
-                $item.adorn('formbuilder-editor');
-                $item.resizable({ grid: 20 });
+                $item.adorner('formbuilder-editor');
+                $item.resizable({
+                    grid: 20
+                });
             }
 
             return $item;
         };
 
-        control.prototype.updateHtml = function () {
+        control.prototype.updateHtml = function (configs) {
             throw new Error('NotImplemented method');
         };
         control.prototype.parseFromHtml = function (html) {
@@ -315,7 +320,6 @@
         function text(configs) {
             configs = configs || {};
             control.call(this, configs);
-            this.required = configs.required;
             this.label = configs.label;
             this.wrap = configs.fieldWrap;
         }
@@ -334,12 +338,14 @@
                 $label.appendTo($item);
             }
 
-
-
             var $input = $('<input type="text">');
+            if (this.field.required) {
+                $input.prop('required', true);
+            }
+
             if (this.wrap) {
                 var $div = $('<div></div>');
-                if(this.wrap.class){
+                if (this.wrap.class) {
                     $div.addClass(this.wrap.class);
                 }
                 $div.append($input);
@@ -348,40 +354,38 @@
                 $item.append($input);
             }
 
-            if (this.fieldId) {
-                $input.prop('id', this.fieldId);
+            if (this.field.id) {
+                $input.prop('id', this.field.id);
             }
 
-            if (this.fieldName) {
-                $input.prop('name', this.fieldName);
+            if (this.field.name) {
+                $input.prop('name', this.field.ame);
             }
 
-            if (this.fieldClass) {
-                $input.addClass(this.fieldClass);
+            if (this.field.class) {
+                $input.addClass(this.field.class);
             }
 
-            if (this.fieldAttrs) {
-                for (var key in this.fieldAttrs) {
-                    if (this.fieldAttrs.hasOwnProperty(key)) {
-                        $input.attr(key, this.fieldAttrs[key]);
+            if (this.field.attrs) {
+                for (var key in this.field.attrs) {
+                    if (this.field.attrs.hasOwnProperty(key)) {
+                        $input.attr(key, this.field.attrs[key]);
                     }
                 }
             }
 
-            if (this.fieldStyle) {
-                for (var key in this.fieldStyle) {
-                    if (this.fieldStyle.hasOwnProperty(key)) {
-                        $input.css(key, this.fieldStyle[key]);
+            if (this.field.style) {
+                for (var key in this.field.style) {
+                    if (this.field.style.hasOwnProperty(key)) {
+                        $input.css(key, this.field.style[key]);
                     }
                 }
             }
-
+            $item.data('definition', JSON.stringify(this.configs));
             return $item;
         };
-        control.prototype.updateHtml = function () { };
 
-        function buildHtml(control) {
-        }
+        function buildHtml(control) {}
 
         function updateHtml(control) {
 
@@ -402,10 +406,13 @@
                                 <button class="editor-btn btn-delete icon icon-cancel" title="删除"></button>
                             </div>
                      */
-                    $(this).append('<div class="editor-adorn"><button class="editor-btn btn-edit icon icon-pencil" title="编辑"></button><button class="editor-btn btn-copy icon icon-copy" title="复制"></button><button class="editor-btn btn-delete icon icon-cancel" title="删除"></button></div>');
+                    $(this).append(
+                        '<div class="editor-adorn"><button class="editor-btn btn-edit icon icon-pencil" title="编辑"></button><button class="editor-btn btn-copy icon icon-copy" title="复制"></button><button class="editor-btn btn-delete icon icon-cancel" title="删除"></button></div>'
+                    );
                     $(this).on('click', '.btn-edit', function () {
                         var controlType = $item.data('control');
                         var editor = $('[data-template="' + controlType + '-popover"]').clone().html();
+
                         $item.popover({
                             html: true,
                             title: '<span class="close pull-right" data-dismiss="popover">&times;</span>输入框属性',
@@ -414,19 +421,70 @@
                         }).on('shown.bs.popover', function () {
                             var $popup = $(this);
                             var $popover = $(this).next('.popover');
-
                             $popover.find('span.close').click(function (e) {
                                 $popup.popover('hide');
                             });
 
-                            $popover.find('form').on('submit', function () {
-                                var control = {};
+                            var definition = $item.data('definition');
+                            var options = {};
+                            if (definition) {
+                                options = JSON.parse(definition);
+                                $popover.find('[data-field]').each(function () {
+                                    var $field = $(this);
+                                    var storefield = $field.data('field');
+                                    var fields = storefield.split(' ');
+                                    for (var i = 0; i < fields.length; i++) {
+                                        var field = fields[i];
+                                        var value = options;
+                                        value = field.split('-').reduce(function(obj, currentValue){
+                                            return obj[currentValue];
+                                        }, value);
 
+                                        var inputType = $field.prop('type');
+                                        if (inputType === 'checkbox' || inputType === 'radio') {
+                                            $field.prop('checked', value);
+                                        } else {
+                                            $field.val(value);
+                                        }
+                                    }
+                                });
+                            }
+
+                            $popover.find('form').on('submit', function () {
+                                $popover.find('[data-field]').each(function(){
+                                    var $field = $(this);
+                                    var storefield = $field.data('field');
+                                    var fields = storefield.split(' ');
+                                    for (var i = 0; i < fields.length; i++) {
+                                        var field = fields[i];
+                                        var fieldPaths = field.split('-');
+                                        var value = options;
+                                        for (var j = 0; j < fieldPaths.length - 1; j++) {
+                                            var path = fieldPaths[j];
+                                            value = value[path]
+                                            if(!value){
+                                                value[path] = {};
+                                            }
+                                        }
+
+                                        var inputType = $field.prop('type');
+                                        if (inputType === 'checkbox' || inputType === 'radio') {
+                                            value[fieldPaths[fieldPaths.length - 1]] = $field.prop('checked');
+                                        } else {
+                                            value[fieldPaths[fieldPaths.length - 1]] = $field.val();
+                                        }
+                                    }
+                                
+                                });
+                                var html = new text(options).buildHtml();
+                                $item.popover('toggle');
+                                $item.replaceWith(html);
                                 return false;
                             });
                         }).on('hidden.bs.popover', function () {
                             $(this).next('.popover').remove();
                         });
+
                         $item.popover('toggle');
                     }).on('click', '.btn-delete', function () {
 
@@ -440,9 +498,8 @@
 
         $(function () {
 
-            var textConfig = {
+            var buildConfig = {
                 class: 'layui-form-item input-item-inline',
-                type: 'text',
                 label: {
                     class: 'layui-form-label',
                     text: '单行输入框'
@@ -451,21 +508,28 @@
                     class: 'layui-input-block'
                 },
                 field: {
+                    type: 'text',
                     class: 'layui-input',
                     attrs: {
                         'lay-verify': 'title',
                         'autocomplete': 'off',
                         'placeholder': '请输入标题'
-                    }
+                    },
+                    required: true
                 },
+                isPreview: true
             };
-            var txt = new text(textConfig);
+            var txt = new text(buildConfig);
             var html = txt.buildHtml();
             $('.controls-container').append(html);
             $('[data-template$="-popover"]').hide();
             $(".controls-container .layui-form-item")
-                .resizable({ grid: 20 });
-            $('.controls-container').sortable({ cursor: 'move' }).disableSelection();
+                .resizable({
+                    grid: 20
+                });
+            $('.controls-container').sortable({
+                cursor: 'move'
+            }).disableSelection();
         });
     </script>
 </body>
