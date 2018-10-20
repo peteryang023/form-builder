@@ -154,9 +154,8 @@
 <body>
     <div class="builder-form">
         <div class="left width-75">
-            <div class="controls-container">
-
-                <div class="layui-form-item input-item-inline" data-toggle="popover-x" data-target="#text-popover">
+            <div class="controls-container" data-toggle="popover" data-content="Disabled popover">
+                <div class="layui-form-item input-item-inline" data-control="text">
                     <label class="layui-form-label">单行输入框</label>
                     <div class="layui-input-block">
                         <input type="text" name="title" lay-verify="title" autocomplete="off" placeholder="请输入标题" class="layui-input">
@@ -192,67 +191,281 @@
         </div>
     </div>
 
-    <!--Editor dialogs-->
-    <form id="text-popover" class="popover popover-x popover-default md">
-        <div class="arrow"></div>
-        <h3 class="popover-header popover-title"><span class="close pull-right" data-dismiss="popover-x">&times;</span>输入框属性</h3>
-        <div class="popover-body popover-content">
-            <div class="form-group row">
-                <label class="col-sm-3 col-form-label" for="chb-required">必填</label>
-                <div class="col-sm-9">
-                    <input type="checkbox" class="form-check-input" id="chb-required">
+    <!--Editor dialogs for text-->
+    <div data-template="text-popover">
+        <form>
+            <div class="popover-body popover-content">
+                <div class="form-group row">
+                    <label class="col-sm-3 col-form-label" for="chb-required">必填</label>
+                    <div class="col-sm-9">
+                        <input type="checkbox" class="form-check-input" id="chb-required">
+                    </div>
                 </div>
-            </div>
-            <div class="form-group row">
-                <label for="input-title" class="col-sm-3 col-form-label">标题</label>
-                <div class="col-sm-9">
-                    <input type="text" class="form-control" id="input-title" placeholder="输入标题">
+                <div class="form-group row">
+                    <label for="input-title" class="col-sm-3 col-form-label">标题</label>
+                    <div class="col-sm-9">
+                        <input type="text" class="form-control" id="input-title" placeholder="输入标题">
+                    </div>
                 </div>
-            </div>
-            <div class="form-group row">
-                <label for="input-name" class="col-sm-3 col-form-label">名称</label>
-                <div class="col-sm-9">
-                    <input type="text" class="form-control" id="input-name" placeholder="输入名称" required>
+                <div class="form-group row">
+                    <label for="input-name" class="col-sm-3 col-form-label">名称</label>
+                    <div class="col-sm-9">
+                        <input type="text" class="form-control" id="input-name" placeholder="输入名称" required>
+                    </div>
                 </div>
-            </div>
-            <div class="form-group row">
-                <label for="input-type" class="col-sm-3 col-form-label">格式</label>
-                <div class="col-sm-9">
-                    <select class="form-control">
-                        <option value="text">文本框</option>
-                        <option value="password">密码框</option>
-                        <option value="email">邮箱</option>
-                        <option value="number">数字</option>
-                    </select>
+                <div class="form-group row">
+                    <label for="input-type" class="col-sm-3 col-form-label">格式</label>
+                    <div class="col-sm-9">
+                        <select class="form-control">
+                            <option value="text">文本框</option>
+                            <option value="password">密码框</option>
+                            <option value="email">邮箱</option>
+                            <option value="number">数字</option>
+                        </select>
+                    </div>
                 </div>
-            </div>
-            <div class="form-group row">
+                <div class="form-group row">
                     <label for="input-placeholder" class="col-sm-3 col-form-label">提示</label>
                     <div class="col-sm-9">
                         <input type="text" class="form-control" id="input-placeholder" placeholder="输入名称">
                     </div>
                 </div>
 
-        </div>
-        <div class="popover-footer">
-            <button type="submit" class="btn btn-sm btn-primary">保存</button>
-            <button type="reset" class="btn btn-sm btn-default">重置</button>
-        </div>
-    </form>
+            </div>
+            <div class="popover-footer">
+                <button type="submit" class="btn btn-sm btn-primary">保存</button>
+                <button type="reset" class="btn btn-sm btn-default">重置</button>
+            </div>
+        </form>
+    </div>
     <!---->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap-popover-x@1.4.7/js/bootstrap-popover-x.min.js"></script>
     <script src="jquery-adorn.js"></script>
 
 
     <script>
+        function control(configs) {
+            configs = configs || {};
+            this.type = configs.type || 'text';
+            this.id = configs.id;
+            this.name = configs.name;
+            var field = configs.field || { id: Date.now(), name: Date.now() };
+            this.fieldId = field.id;
+            this.fieldName = field.name;
+            this.fieldClass = field.class;
+            this.fieldAttrs = field.attrs;
+            this.class = configs.class;
+            this.attrs = configs.attrs;
+            this.isPreview = configs.isPreview;
+            this.style = configs.style;
+            this.fieldStyle = configs.fieldStyle;
+        }
+
+        control.prototype.getType = function () { return this.type; };
+        control.prototype.buildHtml = function () {
+            $item = $('<div></div>');
+            if (this.id) {
+                $item.prop('id', this.id);
+            }
+
+            if (this.name) {
+                $item.prop('name', this.name);
+            }
+
+            if (this.class) {
+                $item.addClass(this.class);
+            }
+
+            if (this.attrs) {
+                for (var key in this.attrs) {
+                    if (attrs.hasOwnProperty(key)) {
+                        $item.attr(key, attrs[key]);
+                    }
+                }
+            }
+
+            if (this.style) {
+                for (var key in this.style) {
+                    if (style.hasOwnProperty(key)) {
+                        $item.css(key, style[key]);
+                    }
+                }
+            }
+
+            $item.data('control', this.getType());
+
+            if (this.isPreview) {
+                $item.adorn('formbuilder-editor');
+                $item.resizable({ grid: 20 });
+            }
+
+            return $item;
+        };
+
+        control.prototype.updateHtml = function () {
+            throw new Error('NotImplemented method');
+        };
+        control.prototype.parseFromHtml = function (html) {
+            throw new Error('NotImplemented method');
+        };
+
+        function text(configs) {
+            configs = configs || {};
+            control.call(this, configs);
+            this.required = configs.required;
+            this.label = configs.label;
+            this.wrap = configs.fieldWrap;
+        }
+
+        text.prototype = Object.create(control.prototype);
+        text.prototype.constructor = text;
+
+        text.prototype.buildHtml = function () {
+            var $item = control.prototype.buildHtml.call(this);
+
+            if (this.label) {
+                var $label = $('<label></label>');
+                $label.prop('for', this.id);
+                $label.addClass(this.label.class);
+                $label.html(this.label.text);
+                $label.appendTo($item);
+            }
+
+
+
+            var $input = $('<input type="text">');
+            if (this.wrap) {
+                var $div = $('<div></div>');
+                if(this.wrap.class){
+                    $div.addClass(this.wrap.class);
+                }
+                $div.append($input);
+                $item.append($div);
+            } else {
+                $item.append($input);
+            }
+
+            if (this.fieldId) {
+                $input.prop('id', this.fieldId);
+            }
+
+            if (this.fieldName) {
+                $input.prop('name', this.fieldName);
+            }
+
+            if (this.fieldClass) {
+                $input.addClass(this.fieldClass);
+            }
+
+            if (this.fieldAttrs) {
+                for (var key in this.fieldAttrs) {
+                    if (this.fieldAttrs.hasOwnProperty(key)) {
+                        $input.attr(key, this.fieldAttrs[key]);
+                    }
+                }
+            }
+
+            if (this.fieldStyle) {
+                for (var key in this.fieldStyle) {
+                    if (this.fieldStyle.hasOwnProperty(key)) {
+                        $input.css(key, this.fieldStyle[key]);
+                    }
+                }
+            }
+
+            return $item;
+        };
+        control.prototype.updateHtml = function () { };
+
+        function buildHtml(control) {
+        }
+
+        function updateHtml(control) {
+
+        }
+
+        $(function ($) {
+            var oldfun = $.fn.adorner;
+            $.fn.adorner = function (action) {
+                if (oldfun) {
+                    oldfun.apply(this, [action]);
+                }
+                if (action === 'formbuilder-editor') {
+                    var $item = $(this);
+                    /**
+                     * <div class="editor-adorn">
+                                <button class="editor-btn btn-edit icon icon-pencil" title="编辑"></button>
+                                <button class="editor-btn btn-copy icon icon-copy" title="复制"></button>
+                                <button class="editor-btn btn-delete icon icon-cancel" title="删除"></button>
+                            </div>
+                     */
+                    $(this).append('<div class="editor-adorn"><button class="editor-btn btn-edit icon icon-pencil" title="编辑"></button><button class="editor-btn btn-copy icon icon-copy" title="复制"></button><button class="editor-btn btn-delete icon icon-cancel" title="删除"></button></div>');
+                    $(this).on('click', '.btn-edit', function () {
+                        var controlType = $item.data('control');
+                        var editor = $('[data-template="' + controlType + '-popover"]').clone().html();
+                        $item.popover({
+                            html: true,
+                            title: '<span class="close pull-right" data-dismiss="popover">&times;</span>输入框属性',
+                            content: editor,
+                            trigger: 'manual'
+                        }).on('shown.bs.popover', function () {
+                            var $popup = $(this);
+                            var $popover = $(this).next('.popover');
+
+                            $popover.find('span.close').click(function (e) {
+                                $popup.popover('hide');
+                            });
+
+                            $popover.find('form').on('submit', function () {
+                                var control = {};
+
+                                return false;
+                            });
+                        }).on('hidden.bs.popover', function () {
+                            $(this).next('.popover').remove();
+                        });
+                        $item.popover('toggle');
+                    }).on('click', '.btn-delete', function () {
+
+                    }).on('click', '.btn-copy', function () {
+
+                    });
+                }
+                return this;
+            };
+        }(jQuery));
+
         $(function () {
+
+            var textConfig = {
+                class: 'layui-form-item input-item-inline',
+                type: 'text',
+                label: {
+                    class: 'layui-form-label',
+                    text: '单行输入框'
+                },
+                fieldWrap: {
+                    class: 'layui-input-block'
+                },
+                field: {
+                    class: 'layui-input',
+                    attrs: {
+                        'lay-verify': 'title',
+                        'autocomplete': 'off',
+                        'placeholder': '请输入标题'
+                    }
+                },
+            };
+            var txt = new text(textConfig);
+            var html = txt.buildHtml();
+            $('.controls-container').append(html);
+            $('[data-template$="-popover"]').hide();
             $(".controls-container .layui-form-item")
                 .resizable({ grid: 20 });
-                $('.controls-container').sortable({cursor: 'move'}).disableSelection();
-            $(".controls-container .input-item-inline .editor-adorn .btn-edit").on(function () { });
+            $('.controls-container').sortable({ cursor: 'move' }).disableSelection();
         });
     </script>
 </body>
