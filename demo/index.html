@@ -191,7 +191,7 @@
         </div>
     </div>
 
-    <!--Editor dialogs for text-->
+    <!-- text editor -->
     <div data-template="text-popover">
         <form>
             <div class="popover-body popover-content">
@@ -240,7 +240,43 @@
             </div>
         </form>
     </div>
-    <!---->
+    <!-- end text editor -->
+
+    <!-- button editor -->
+    <div data-template="button-popover">
+            <form>
+                <div class="popover-body popover-content">
+                    <div class="form-group row">
+                        <label for="input-title" class="col-sm-3 col-form-label">标题</label>
+                        <div class="col-sm-9">
+                            <input type="text" data-field="field-text" class="form-control" id="input-title" placeholder="输入标题" required>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="input-name" class="col-sm-3 col-form-label">名称</label>
+                        <div class="col-sm-9">
+                            <input type="text" data-field="field-id field-name" class="form-control" id="input-name"
+                                placeholder="输入名称" required>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="input-type" class="col-sm-3 col-form-label">格式</label>
+                        <div class="col-sm-9">
+                            <select class="form-control" data-field="field-type">
+                                <option value="button">按钮</option>
+                                <option value="reset">重置</option>
+                                <option value="submit">提交</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="popover-footer">
+                    <button type="submit" class="btn btn-sm btn-primary">保存</button>
+                    <button type="reset" class="btn btn-sm btn-default">重置</button>
+                </div>
+            </form>
+        </div>
+    <!-- #end button editor -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
@@ -249,16 +285,30 @@
 
 
     <script>
+        var factory = {
+            createControl: function (configs) {
+                var controlType = (configs.field || {type: 'text'}).type;
+                switch (controlType) {
+                    case 'text':
+                        return new text(configs);
+                        break;
+                    default:
+                        throw new Error('Unknown control type "' + controlType + '"');
+                }
+            }
+        };
+
+
         function control(configs) {
             this.configs = configs || {};
-            this.type = configs.type || 'text';
             this.id = configs.id;
             this.name = configs.name;
             this.field = configs.field || {
                 id: Date.now(),
-                name: Date.now()
+                name: Date.now(),
+                type: 'text'
             };
-            
+
             this.class = configs.class;
             this.attrs = configs.attrs;
             this.isPreview = configs.isPreview;
@@ -266,7 +316,7 @@
         }
 
         control.prototype.getType = function () {
-            return this.type;
+            return this.field.type;
         };
         control.prototype.buildHtml = function () {
             $item = $('<div></div>');
@@ -284,16 +334,16 @@
 
             if (this.attrs) {
                 for (var key in this.attrs) {
-                    if (attrs.hasOwnProperty(key)) {
-                        $item.attr(key, attrs[key]);
+                    if (this.attrs.hasOwnProperty(key)) {
+                        $item.attr(key, this.attrs[key]);
                     }
                 }
             }
 
             if (this.style) {
                 for (var key in this.style) {
-                    if (style.hasOwnProperty(key)) {
-                        $item.css(key, style[key]);
+                    if (this.style.hasOwnProperty(key)) {
+                        $item.css(key, this.style[key]);
                     }
                 }
             }
@@ -436,12 +486,14 @@
                                     for (var i = 0; i < fields.length; i++) {
                                         var field = fields[i];
                                         var value = options;
-                                        value = field.split('-').reduce(function(obj, currentValue){
+                                        value = field.split('-').reduce(function (
+                                            obj, currentValue) {
                                             return obj[currentValue];
                                         }, value);
 
                                         var inputType = $field.prop('type');
-                                        if (inputType === 'checkbox' || inputType === 'radio') {
+                                        if (inputType === 'checkbox' || inputType ===
+                                            'radio') {
                                             $field.prop('checked', value);
                                         } else {
                                             $field.val(value);
@@ -451,7 +503,7 @@
                             }
 
                             $popover.find('form').on('submit', function () {
-                                $popover.find('[data-field]').each(function(){
+                                $popover.find('[data-field]').each(function () {
                                     var $field = $(this);
                                     var storefield = $field.data('field');
                                     var fields = storefield.split(' ');
@@ -459,24 +511,29 @@
                                         var field = fields[i];
                                         var fieldPaths = field.split('-');
                                         var value = options;
-                                        for (var j = 0; j < fieldPaths.length - 1; j++) {
+                                        for (var j = 0; j < fieldPaths.length -
+                                            1; j++) {
                                             var path = fieldPaths[j];
                                             value = value[path]
-                                            if(!value){
+                                            if (!value) {
                                                 value[path] = {};
                                             }
                                         }
 
                                         var inputType = $field.prop('type');
-                                        if (inputType === 'checkbox' || inputType === 'radio') {
-                                            value[fieldPaths[fieldPaths.length - 1]] = $field.prop('checked');
+                                        if (inputType === 'checkbox' ||
+                                            inputType === 'radio') {
+                                            value[fieldPaths[fieldPaths.length -
+                                                1]] = $field.prop(
+                                                'checked');
                                         } else {
-                                            value[fieldPaths[fieldPaths.length - 1]] = $field.val();
+                                            value[fieldPaths[fieldPaths.length -
+                                                1]] = $field.val();
                                         }
                                     }
-                                
+
                                 });
-                                var html = new text(options).buildHtml();
+                                var html = factory.createControl(options).buildHtml();
                                 $item.popover('toggle');
                                 $item.replaceWith(html);
                                 return false;
@@ -487,9 +544,15 @@
 
                         $item.popover('toggle');
                     }).on('click', '.btn-delete', function () {
-
+                        $item.remove();
                     }).on('click', '.btn-copy', function () {
-
+                        var definition = $item.data('definition');
+                        var options = {};
+                        if (definition) {
+                            options = JSON.parse(definition);
+                        }
+                        var html = factory.createControl(options).buildHtml();
+                        $item.parent().append(html);
                     });
                 }
                 return this;
