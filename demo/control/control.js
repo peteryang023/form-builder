@@ -51,16 +51,17 @@ control.prototype.buildHtml = function () {
 
     if (this.isPreview) {
         $item.adorner('formbuilder-editor');
-        $item.resizable({
-            grid: 20,
-            stop: function (event, ui) {
-                var parentWidth = ui.originalElement.parent().width();
-                var parentHeight = ui.originalElement.parent().height();
-                var newWidth = ui.size.width;
-                var newHeight = ui.size.height;
-                ui.originalElement.css('width', (newWidth / parentWidth) * 100 + '%');
-            }
-        });
+
+        if (this.field.resizable == undefined || this.field.resizable) {
+            $item.resizable({
+                grid: 20,
+                stop: function (event, ui) {
+                    var parentWidth = ui.originalElement.parent().width();
+                    var newWidth = ui.size.width;
+                    ui.originalElement.css('width', (newWidth / parentWidth) * 100 + '%');
+                }
+            });
+        }
     }
 
     return $item;
@@ -83,6 +84,9 @@ var factory = {
                 break;
             case 'button':
                 return new button(configs);
+                break;
+            case 'hidden':
+                return new hidden(configs);
                 break;
             default:
                 throw new Error('Unknown control type "' + controlType + '"');

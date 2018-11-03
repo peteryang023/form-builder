@@ -166,6 +166,18 @@
     border-radius: 2px;
     cursor: pointer;
 }
+
+.hidden-preview{
+    border: #c5c5c5 dotted 1px;
+    background-color: #faebcc;
+    text-align: center;
+}
+
+.hidden-preview label{
+    float: none;
+    display: table;
+    margin: auto;
+}
     </style>
 
 </head>
@@ -174,7 +186,6 @@
     <div class="builder-form">
         <div class="left width-75">
             <div class="controls-container">
-               
             </div>
         </div>
         <div class="right width-25">
@@ -284,6 +295,26 @@
         </form>
     </div>
     <!-- #end button editor -->
+
+    <!-- #hidden editor -->
+    <div data-template="hidden-popover">
+        <form>
+            <div class="popover-body popover-content">
+                <div class="form-group row">
+                    <label for="input-name" class="col-sm-3 col-form-label">名称</label>
+                    <div class="col-sm-9">
+                        <input type="text" data-field="field-id field-name" class="form-control" id="input-name"
+                            placeholder="输入名称" required>
+                    </div>
+                </div>
+            </div>
+            <div class="popover-footer">
+                <button type="submit" class="btn btn-sm btn-primary">保存</button>
+                <button type="reset" class="btn btn-sm btn-default">重置</button>
+            </div>
+        </form>
+    </div>
+    <!-- #end hidden editor -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
@@ -291,6 +322,7 @@
     <script src="control/control.js"></script>
     <script src="control/text.js"></script>
     <script src="control/button.js"></script>
+    <script src="control/hidden.js"></script>
     <script src="jquery-adorn.js"></script>
 
 
@@ -317,46 +349,17 @@
                     style: {
                         width: '100%'
                     },
-                    required: true
-                },
-                isPreview: true
-            };
-
-            var readonlyTxtConfigs = {
-                class: 'layui-form-item input-item-inline',
-                label: {
-                    class: 'layui-form-label',
-                    text: '单行输入框'
-                },
-                fieldWrap: {
-                    class: 'layui-input-block'
-                },
-                field: {
-                    type: 'text',
-                    class: 'layui-input',
-                    attrs: {
-                        'lay-verify': 'title',
-                        'autocomplete': 'off',
-                        'placeholder': '请输入标题'
-                    },
-                    style: {
-                        width: '100%'
-                    },
                     required: true,
-                    readonly: true
+                    readonly: false
                 },
                 isPreview: true
             };
-
             var txt = factory.createControl(txtConfigs);
             $('.controls-container').append(txt.buildHtml());
 
-            var readonlyTxt = factory.createControl(readonlyTxtConfigs);
-            $('.controls-container').append(readonlyTxt.buildHtml());
-
             var buttonConfigs = {
                 class: 'layui-form-item input-item-inline',
-                
+
                 field: {
                     type: 'button',
                     text: '按钮',
@@ -368,6 +371,19 @@
 
             var btn = factory.createControl(buttonConfigs);
             $('.controls-container').append(btn.buildHtml());
+
+            var hiddenConfigs = {
+                class: 'layui-form-item input-item-inline',
+                field: {
+                    type: 'hidden',
+                    resizable: false
+                },
+                isPreview: true
+            };
+
+            var hide = factory.createControl(hiddenConfigs);
+            $('.controls-container').append(hide.buildHtml());
+
             $('[data-template$="-popover"]').hide();
 
             $('.controls-container').sortable({
