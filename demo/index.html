@@ -202,6 +202,12 @@
                     </div>
                 </div>
                 <div class="form-group row">
+                    <label class="col-sm-3 col-form-label" for="chb-readonly">只读</label>
+                    <div class="col-sm-9">
+                        <input data-field="field-readonly" type="checkbox" class="form-check-input" id="chb-readonly">
+                    </div>
+                </div>
+                <div class="form-group row">
                     <label for="input-title" class="col-sm-3 col-form-label">标题</label>
                     <div class="col-sm-9">
                         <input type="text" data-field="label-text" class="form-control" id="input-title" placeholder="输入标题">
@@ -244,38 +250,39 @@
 
     <!-- button editor -->
     <div data-template="button-popover">
-            <form>
-                <div class="popover-body popover-content">
-                    <div class="form-group row">
-                        <label for="input-title" class="col-sm-3 col-form-label">标题</label>
-                        <div class="col-sm-9">
-                            <input type="text" data-field="field-text" class="form-control" id="input-title" placeholder="输入标题" required>
-                        </div>
-                    </div>
-                    <div class="form-group row">
-                        <label for="input-name" class="col-sm-3 col-form-label">名称</label>
-                        <div class="col-sm-9">
-                            <input type="text" data-field="field-id field-name" class="form-control" id="input-name"
-                                placeholder="输入名称" required>
-                        </div>
-                    </div>
-                    <div class="form-group row">
-                        <label for="input-type" class="col-sm-3 col-form-label">格式</label>
-                        <div class="col-sm-9">
-                            <select class="form-control" data-field="field-type">
-                                <option value="button">按钮</option>
-                                <option value="reset">重置</option>
-                                <option value="submit">提交</option>
-                            </select>
-                        </div>
+        <form>
+            <div class="popover-body popover-content">
+                <div class="form-group row">
+                    <label for="input-title" class="col-sm-3 col-form-label">标题</label>
+                    <div class="col-sm-9">
+                        <input type="text" data-field="field-text" class="form-control" id="input-title" placeholder="输入标题"
+                            required>
                     </div>
                 </div>
-                <div class="popover-footer">
-                    <button type="submit" class="btn btn-sm btn-primary">保存</button>
-                    <button type="reset" class="btn btn-sm btn-default">重置</button>
+                <div class="form-group row">
+                    <label for="input-name" class="col-sm-3 col-form-label">名称</label>
+                    <div class="col-sm-9">
+                        <input type="text" data-field="field-id field-name" class="form-control" id="input-name"
+                            placeholder="输入名称" required>
+                    </div>
                 </div>
-            </form>
-        </div>
+                <div class="form-group row">
+                    <label for="input-type" class="col-sm-3 col-form-label">格式</label>
+                    <div class="col-sm-9">
+                        <select class="form-control" data-field="field-type">
+                            <option value="button">按钮</option>
+                            <option value="reset">重置</option>
+                            <option value="submit">提交</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="popover-footer">
+                <button type="submit" class="btn btn-sm btn-primary">保存</button>
+                <button type="reset" class="btn btn-sm btn-default">重置</button>
+            </div>
+        </form>
+    </div>
     <!-- #end button editor -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
@@ -287,7 +294,7 @@
     <script>
         var factory = {
             createControl: function (configs) {
-                var controlType = (configs.field || {type: 'text'}).type;
+                var controlType = (configs.field || { type: 'text' }).type;
                 switch (controlType) {
                     case 'text':
                         return new text(configs);
@@ -372,6 +379,7 @@
             control.call(this, configs);
             this.label = configs.label;
             this.wrap = configs.fieldWrap;
+            this.readonly = configs.readonly;
         }
 
         text.prototype = Object.create(control.prototype);
@@ -391,6 +399,10 @@
             var $input = $('<input type="text">');
             if (this.field.required) {
                 $input.prop('required', true);
+            }
+
+            if (this.field.readonly) {
+                $input.prop('readonly', this.field.readonly);
             }
 
             if (this.wrap) {
@@ -435,7 +447,7 @@
             return $item;
         };
 
-        function buildHtml(control) {}
+        function buildHtml(control) { }
 
         function updateHtml(control) {
 
@@ -525,7 +537,7 @@
                                             inputType === 'radio') {
                                             value[fieldPaths[fieldPaths.length -
                                                 1]] = $field.prop(
-                                                'checked');
+                                                    'checked');
                                         } else {
                                             value[fieldPaths[fieldPaths.length -
                                                 1]] = $field.val();
@@ -561,7 +573,7 @@
 
         $(function () {
 
-            var buildConfig = {
+            var txtConfigs = {
                 class: 'layui-form-item input-item-inline',
                 label: {
                     class: 'layui-form-label',
@@ -578,26 +590,56 @@
                         'autocomplete': 'off',
                         'placeholder': '请输入标题'
                     },
-                    style:{
+                    style: {
                         width: '100%'
                     },
                     required: true
                 },
                 isPreview: true
             };
-            var txt = new text(buildConfig);
-            var html = txt.buildHtml();
-            $('.controls-container').append(html);
+
+            var readonlyTxtConfigs = {
+                class: 'layui-form-item input-item-inline',
+                label: {
+                    class: 'layui-form-label',
+                    text: '单行输入框'
+                },
+                fieldWrap: {
+                    class: 'layui-input-block'
+                },
+                field: {
+                    type: 'text',
+                    class: 'layui-input',
+                    attrs: {
+                        'lay-verify': 'title',
+                        'autocomplete': 'off',
+                        'placeholder': '请输入标题'
+                    },
+                    style: {
+                        width: '100%'
+                    },
+                    required: true,
+                    readonly: true
+                },
+                isPreview: true
+            };
+
+            var txt = factory.createControl(txtConfigs);
+            $('.controls-container').append(txt.buildHtml());
+
+            var readonlyTxt = factory.createControl(readonlyTxtConfigs);
+            $('.controls-container').append(readonlyTxt.buildHtml());
+
             $('[data-template$="-popover"]').hide();
             $(".controls-container .layui-form-item")
                 .resizable({
                     grid: 20,
-                    stop: function(event, ui){
+                    stop: function (event, ui) {
                         var parentWidth = ui.originalElement.parent().width();
                         var parentHeight = ui.originalElement.parent().height();
                         var newWidth = ui.size.width;
                         var newHeight = ui.size.height;
-                        ui.originalElement.css('width', (newWidth/parentWidth) * 100 + '%');
+                        ui.originalElement.css('width', (newWidth / parentWidth) * 100 + '%');
                     }
                 });
             $('.controls-container').sortable({
