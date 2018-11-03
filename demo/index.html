@@ -147,6 +147,25 @@
 .input-item-inline:hover > .editor-adorn{
     display: block;
 }
+
+.layui-btn-normal {
+    background-color: #1E9FFF;
+}
+
+.layui-btn {
+    display: inline-block;
+    height: 38px;
+    line-height: 38px;
+    padding: 0 18px;
+    background-color: #009688;
+    color: #fff;
+    white-space: nowrap;
+    text-align: center;
+    font-size: 14px;
+    border: none;
+    border-radius: 2px;
+    cursor: pointer;
+}
     </style>
 
 </head>
@@ -154,27 +173,8 @@
 <body>
     <div class="builder-form">
         <div class="left width-75">
-            <div class="controls-container" data-toggle="popover" data-content="Disabled popover">
-                <div class="layui-form-item input-item-inline" data-control="text">
-                    <label class="layui-form-label">单行输入框</label>
-                    <div class="layui-input-block">
-                        <input type="text" name="title" lay-verify="title" autocomplete="off" placeholder="请输入标题" class="layui-input">
-                    </div>
-
-                    <div class="editor-adorn">
-                        <button class="editor-btn btn-edit icon icon-pencil" title="编辑"></button>
-                        <button class="editor-btn btn-copy icon icon-copy" title="复制"></button>
-                        <button class="editor-btn btn-delete icon icon-cancel" title="删除"></button>
-                    </div>
-                </div>
-
-                <div class="layui-form-item input-item-inline">
-                    <label class="layui-form-label">单行输入框</label>
-                    <div class="layui-input-block">
-                        <input type="text" name="title" lay-verify="title" autocomplete="off" placeholder="请输入标题" class="layui-input">
-                    </div>
-                </div>
-
+            <div class="controls-container">
+               
             </div>
         </div>
         <div class="right width-25">
@@ -288,289 +288,13 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="control/control.js"></script>
+    <script src="control/text.js"></script>
+    <script src="control/button.js"></script>
     <script src="jquery-adorn.js"></script>
 
 
     <script>
-        var factory = {
-            createControl: function (configs) {
-                var controlType = (configs.field || { type: 'text' }).type;
-                switch (controlType) {
-                    case 'text':
-                        return new text(configs);
-                        break;
-                    default:
-                        throw new Error('Unknown control type "' + controlType + '"');
-                }
-            }
-        };
-
-
-        function control(configs) {
-            this.configs = configs || {};
-            this.id = configs.id;
-            this.name = configs.name;
-            this.field = configs.field || {
-                id: Date.now(),
-                name: Date.now(),
-                type: 'text'
-            };
-
-            this.class = configs.class;
-            this.attrs = configs.attrs;
-            this.isPreview = configs.isPreview;
-            this.style = configs.style;
-        }
-
-        control.prototype.getType = function () {
-            return this.field.type;
-        };
-        control.prototype.buildHtml = function () {
-            $item = $('<div></div>');
-            if (this.id) {
-                $item.prop('id', this.id);
-            }
-
-            if (this.name) {
-                $item.prop('name', this.name);
-            }
-
-            if (this.class) {
-                $item.addClass(this.class);
-            }
-
-            if (this.attrs) {
-                for (var key in this.attrs) {
-                    if (this.attrs.hasOwnProperty(key)) {
-                        $item.attr(key, this.attrs[key]);
-                    }
-                }
-            }
-
-            if (this.style) {
-                for (var key in this.style) {
-                    if (this.style.hasOwnProperty(key)) {
-                        $item.css(key, this.style[key]);
-                    }
-                }
-            }
-
-            $item.data('control', this.getType());
-
-            if (this.isPreview) {
-                $item.adorner('formbuilder-editor');
-                $item.resizable({
-                    grid: 20
-                });
-            }
-
-            return $item;
-        };
-
-        control.prototype.updateHtml = function (configs) {
-            throw new Error('NotImplemented method');
-        };
-        control.prototype.parseFromHtml = function (html) {
-            throw new Error('NotImplemented method');
-        };
-
-        function text(configs) {
-            configs = configs || {};
-            control.call(this, configs);
-            this.label = configs.label;
-            this.wrap = configs.fieldWrap;
-            this.readonly = configs.readonly;
-        }
-
-        text.prototype = Object.create(control.prototype);
-        text.prototype.constructor = text;
-
-        text.prototype.buildHtml = function () {
-            var $item = control.prototype.buildHtml.call(this);
-
-            if (this.label) {
-                var $label = $('<label></label>');
-                $label.prop('for', this.id);
-                $label.addClass(this.label.class);
-                $label.html(this.label.text);
-                $label.appendTo($item);
-            }
-
-            var $input = $('<input type="text">');
-            if (this.field.required) {
-                $input.prop('required', true);
-            }
-
-            if (this.field.readonly) {
-                $input.prop('readonly', this.field.readonly);
-            }
-
-            if (this.wrap) {
-                var $div = $('<div></div>');
-                if (this.wrap.class) {
-                    $div.addClass(this.wrap.class);
-                }
-                $div.append($input);
-                $item.append($div);
-            } else {
-                $item.append($input);
-            }
-
-            if (this.field.id) {
-                $input.prop('id', this.field.id);
-            }
-
-            if (this.field.name) {
-                $input.prop('name', this.field.ame);
-            }
-
-            if (this.field.class) {
-                $input.addClass(this.field.class);
-            }
-
-            if (this.field.attrs) {
-                for (var key in this.field.attrs) {
-                    if (this.field.attrs.hasOwnProperty(key)) {
-                        $input.attr(key, this.field.attrs[key]);
-                    }
-                }
-            }
-
-            if (this.field.style) {
-                for (var key in this.field.style) {
-                    if (this.field.style.hasOwnProperty(key)) {
-                        $input.css(key, this.field.style[key]);
-                    }
-                }
-            }
-            $item.data('definition', JSON.stringify(this.configs));
-            return $item;
-        };
-
-        function buildHtml(control) { }
-
-        function updateHtml(control) {
-
-        }
-
-        $(function ($) {
-            var oldfun = $.fn.adorner;
-            $.fn.adorner = function (action) {
-                if (oldfun) {
-                    oldfun.apply(this, [action]);
-                }
-                if (action === 'formbuilder-editor') {
-                    var $item = $(this);
-                    /**
-                     * <div class="editor-adorn">
-                                <button class="editor-btn btn-edit icon icon-pencil" title="编辑"></button>
-                                <button class="editor-btn btn-copy icon icon-copy" title="复制"></button>
-                                <button class="editor-btn btn-delete icon icon-cancel" title="删除"></button>
-                            </div>
-                     */
-                    $(this).append(
-                        '<div class="editor-adorn"><button class="editor-btn btn-edit icon icon-pencil" title="编辑"></button><button class="editor-btn btn-copy icon icon-copy" title="复制"></button><button class="editor-btn btn-delete icon icon-cancel" title="删除"></button></div>'
-                    );
-                    $(this).on('click', '.btn-edit', function () {
-                        var controlType = $item.data('control');
-                        var editor = $('[data-template="' + controlType + '-popover"]').clone().html();
-
-                        $item.popover({
-                            html: true,
-                            title: '<span class="close pull-right" data-dismiss="popover">&times;</span>输入框属性',
-                            content: editor,
-                            trigger: 'manual'
-                        }).on('shown.bs.popover', function () {
-                            var $popup = $(this);
-                            var $popover = $(this).next('.popover');
-                            $popover.find('span.close').click(function (e) {
-                                $popup.popover('hide');
-                            });
-
-                            var definition = $item.data('definition');
-                            var options = {};
-                            if (definition) {
-                                options = JSON.parse(definition);
-                                $popover.find('[data-field]').each(function () {
-                                    var $field = $(this);
-                                    var storefield = $field.data('field');
-                                    var fields = storefield.split(' ');
-                                    for (var i = 0; i < fields.length; i++) {
-                                        var field = fields[i];
-                                        var value = options;
-                                        value = field.split('-').reduce(function (
-                                            obj, currentValue) {
-                                            return obj[currentValue];
-                                        }, value);
-
-                                        var inputType = $field.prop('type');
-                                        if (inputType === 'checkbox' || inputType ===
-                                            'radio') {
-                                            $field.prop('checked', value);
-                                        } else {
-                                            $field.val(value);
-                                        }
-                                    }
-                                });
-                            }
-
-                            $popover.find('form').on('submit', function () {
-                                $popover.find('[data-field]').each(function () {
-                                    var $field = $(this);
-                                    var storefield = $field.data('field');
-                                    var fields = storefield.split(' ');
-                                    for (var i = 0; i < fields.length; i++) {
-                                        var field = fields[i];
-                                        var fieldPaths = field.split('-');
-                                        var value = options;
-                                        for (var j = 0; j < fieldPaths.length -
-                                            1; j++) {
-                                            var path = fieldPaths[j];
-                                            value = value[path]
-                                            if (!value) {
-                                                value[path] = {};
-                                            }
-                                        }
-
-                                        var inputType = $field.prop('type');
-                                        if (inputType === 'checkbox' ||
-                                            inputType === 'radio') {
-                                            value[fieldPaths[fieldPaths.length -
-                                                1]] = $field.prop(
-                                                    'checked');
-                                        } else {
-                                            value[fieldPaths[fieldPaths.length -
-                                                1]] = $field.val();
-                                        }
-                                    }
-
-                                });
-                                var html = factory.createControl(options).buildHtml();
-                                $item.popover('toggle');
-                                $item.replaceWith(html);
-                                return false;
-                            });
-                        }).on('hidden.bs.popover', function () {
-                            $(this).next('.popover').remove();
-                        });
-
-                        $item.popover('toggle');
-                    }).on('click', '.btn-delete', function () {
-                        $item.remove();
-                    }).on('click', '.btn-copy', function () {
-                        var definition = $item.data('definition');
-                        var options = {};
-                        if (definition) {
-                            options = JSON.parse(definition);
-                        }
-                        var html = factory.createControl(options).buildHtml();
-                        $item.parent().append(html);
-                    });
-                }
-                return this;
-            };
-        }(jQuery));
-
         $(function () {
 
             var txtConfigs = {
@@ -630,18 +354,22 @@
             var readonlyTxt = factory.createControl(readonlyTxtConfigs);
             $('.controls-container').append(readonlyTxt.buildHtml());
 
+            var buttonConfigs = {
+                class: 'layui-form-item input-item-inline',
+                
+                field: {
+                    type: 'button',
+                    text: '按钮',
+                    class: 'layui-btn layui-btn-normal',
+                    disabled: false
+                },
+                isPreview: true
+            };
+
+            var btn = factory.createControl(buttonConfigs);
+            $('.controls-container').append(btn.buildHtml());
             $('[data-template$="-popover"]').hide();
-            $(".controls-container .layui-form-item")
-                .resizable({
-                    grid: 20,
-                    stop: function (event, ui) {
-                        var parentWidth = ui.originalElement.parent().width();
-                        var parentHeight = ui.originalElement.parent().height();
-                        var newWidth = ui.size.width;
-                        var newHeight = ui.size.height;
-                        ui.originalElement.css('width', (newWidth / parentWidth) * 100 + '%');
-                    }
-                });
+
             $('.controls-container').sortable({
                 cursor: 'move'
             }).disableSelection();
